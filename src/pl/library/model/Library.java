@@ -1,45 +1,60 @@
 package pl.library.model;
 
+import pl.library.exception.PublicationAlreadyExistException;
+import pl.library.exception.UserAlreadyExistException;
+
 import java.io.Serializable;
-import java.util.Arrays;
+import java.util.*;
 
 public class Library implements Serializable {
 
-    private static final int INITIAL_CAPACITY = 1;
-    private int publicationsNumber;
-    private Publication[] publications = new Publication[INITIAL_CAPACITY];
+    private Map<String, Publication> publications = new HashMap<>();
+    private Map<String, LibraryUser> users = new HashMap<>();
 
-    public Publication[] getPublications() {
-        Publication[] result = new Publication[publicationsNumber];
-        for (int i = 0; i < result.length; i++) {
-            result[i] = publications[i];
-        }
-        return result;
+    public Map<String, Publication> getPublications() {
+        return publications;
+    }
+
+    public Collection<Publication> getSortedPublications(Comparator<Publication> comparator){
+        ArrayList<Publication> list = new ArrayList<>(publications.values());
+        list.sort(comparator);
+        return list;
+    }
+    public Collection<LibraryUser> getSortedUsers(Comparator<LibraryUser> comparator){
+        ArrayList<LibraryUser> list = new ArrayList<>(users.values());
+        list.sort(comparator);
+        return list;
+    }
+
+    public Map<String, LibraryUser> getUsers() {
+        return users;
     }
 
     public void addPublication(Publication publication){
-        if (publicationsNumber == INITIAL_CAPACITY) {
-            publications = Arrays.copyOf(publications, INITIAL_CAPACITY * 2);
-        }
-            publications[publicationsNumber] = publication;
-            publicationsNumber++;
-    }
-    public boolean removePublication(Publication publication){
-        final int notFound = -1;
-        int foundIndex = notFound;
-        int i = 0;
-        while (i < publicationsNumber && foundIndex == notFound) {
-            if (publication.equals(publications[i])){
-                foundIndex = i;
-            } else {
-                i++;
+            if (publications.containsKey(publication.getTitle())){
+                addBookCopy(publication);
+                throw new PublicationAlreadyExistException("Publikacja o takim tytule już istnieje, dodałem kolejny egzemplarz");
             }
+            publications.put(publication.getTitle(), publication);
+    }
+
+    public void addUser(LibraryUser user){
+        if (users.containsKey(user.getPesel())){
+            throw new UserAlreadyExistException("Użytkownik o takim peselu już istnieje");
         }
-        if (foundIndex != notFound) {
-            System.arraycopy(publications, foundIndex + 1, publications, foundIndex, publications.length - foundIndex - 1);
-            publicationsNumber--;
-            publications[publicationsNumber] = null;
-        }
-        return foundIndex != notFound;
+        users.put(user.getPesel(), user);
+    }
+
+    private void addBookCopy(Publication publication) {
+        int actualCount = publications.get(publication.getTitle()).getCount();
+        publications.get(publication.getTitle()).setCount(actualCount + 1);
+    }
+
+    public boolean removePublication(Publication publication){
+        if (publications.containsValue(publication)) {
+            publications.remove(publication.getTitle());
+            return true;
+        } else
+        return false;
     }
 }

@@ -1,18 +1,14 @@
 package pl.library.app;
 
-import pl.library.exception.DataExportException;
-import pl.library.exception.DataImportException;
-import pl.library.exception.InvalidDataException;
-import pl.library.exception.NoSuchOptionException;
+import java.util.Comparator;
+import java.util.InputMismatchException;
+import pl.library.exception.*;
 import pl.library.io.ConsolePrinter;
 import pl.library.io.DataReader;
 import pl.library.io.file.FileManager;
 import pl.library.io.file.FileManagerBuilder;
-import pl.library.model.Book;
-import pl.library.model.Library;
-import pl.library.model.Magazine;
-
-import java.util.InputMismatchException;
+import pl.library.model.*;
+import pl.library.model.comparator.AlphabeticalTitleComparator;
 
 class LibraryControl {
     private ConsolePrinter consolePrinter = new ConsolePrinter();
@@ -39,31 +35,36 @@ class LibraryControl {
             printOptions();
             option = getOption();
             switch (option) {
-                case ADD_BOOK:
-                    addBook();
-                    break;
-                case ADD_MAGAZINE:
-                    addMagazine();
-                    break;
-                case PRINT_BOOKS:
-                    printBooks();
-                    break;
-                case PRINT_MAGAZINES:
-                    printMagazines();
-                    break;
-                case REMOVE_BOOK:
-                    removeBook();
-                    break;
-                case REMOVE_MAGAZINE:
-                    removeMagazine();
-                    break;
-                case EXIT:
-                    exit();
-                    break;
-                default:
-                    consolePrinter.printLine("Nie ma takiej opcji, wprowadź ponownie: ");
+                case ADD_BOOK -> addBook();
+                case ADD_MAGAZINE -> addMagazine();
+                case PRINT_BOOKS -> printBooks();
+                case PRINT_MAGAZINES -> printMagazines();
+                case REMOVE_BOOK -> removeBook();
+                case REMOVE_MAGAZINE -> removeMagazine();
+                case ADD_USER -> addUser();
+                case PRINT_USERS -> printUsers();
+                case EXIT -> exit();
+                default -> consolePrinter.printLine("Nie ma takiej opcji, wprowadź ponownie: ");
             }
         } while (option != Option.EXIT);
+    }
+
+    private void printUsers() {
+        consolePrinter.printUsers(library.getSortedUsers(new Comparator<LibraryUser>() {
+            @Override
+            public int compare(LibraryUser o1, LibraryUser o2) {
+                return o1.getLastName().compareToIgnoreCase(o2.getLastName());
+            }
+        }));
+    }
+
+    private void addUser() {
+        LibraryUser libraryUser = dataReader.createLibraryUser();
+        try {
+            library.addUser(libraryUser);
+        } catch (UserAlreadyExistException e) {
+            consolePrinter.printLine(e.getMessage());
+        }
     }
 
     private Option getOption() {
@@ -113,7 +114,7 @@ class LibraryControl {
     }
 
     private void printBooks() {
-        consolePrinter.printBooks(library.getPublications());
+        consolePrinter.printBooks(library.getSortedPublications(new AlphabeticalTitleComparator()));
     }
 
     private void addMagazine() {
@@ -139,7 +140,7 @@ class LibraryControl {
     }
 
     private void printMagazines() {
-        consolePrinter.printMagazines(library.getPublications());
+        consolePrinter.printMagazines(library.getSortedPublications(new AlphabeticalTitleComparator()));
     }
 
     private void exit() {
@@ -160,7 +161,9 @@ class LibraryControl {
         PRINT_BOOKS(3, "Wyświetlenie dostępnych książek"),
         PRINT_MAGAZINES(4, "Wyświetlenie dostępnych magazynów/gazet"),
         REMOVE_BOOK(5, "Usuń książkę"),
-        REMOVE_MAGAZINE(6, "Usuń magazyn");
+        REMOVE_MAGAZINE(6, "Usuń magazyn"),
+        ADD_USER(7, "Dodaj użytkownika"),
+        PRINT_USERS(8, "Wyświetl użytkowników");
 
         private int value;
         private String description;

@@ -7,6 +7,7 @@ public class Magazine extends Publication {
     private int month;
     private int day;
     private String language;
+    private int count = 0;
 
     public Magazine(String title, String publisher, String language, int year, int month, int day) {
         super(title, publisher, year);

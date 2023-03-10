@@ -3,10 +3,11 @@ package pl.library.model;
 import java.io.Serializable;
 import java.util.Objects;
 
-abstract public class Publication implements Serializable {
+abstract public class Publication implements Serializable, Comparable<Publication>, CsvConvertible {
     private String title;
     private String publisher;
     private int year;
+    private int count = 0;
 
     Publication(String title, String publisher, int year) {
         this.title = title;
@@ -14,7 +15,7 @@ abstract public class Publication implements Serializable {
         this.year = year;
     }
 
-    int getYear() {
+    public int getYear() {
         return year;
     }
 
@@ -22,7 +23,7 @@ abstract public class Publication implements Serializable {
         this.year = year;
     }
 
-    String getTitle() {
+    public String getTitle() {
         return title;
     }
 
@@ -36,6 +37,14 @@ abstract public class Publication implements Serializable {
 
     void setPublisher(String publisher) {
         this.publisher = publisher;
+    }
+
+    public int getCount() {
+        return count;
+    }
+
+    public void setCount(int count) {
+        this.count = count;
     }
 
     public abstract String toCsv();
@@ -58,5 +67,10 @@ abstract public class Publication implements Serializable {
     @Override
     public int hashCode() {
         return Objects.hash(title, publisher, year);
+    }
+
+    @Override
+    public int compareTo(Publication p) {
+        return title.compareToIgnoreCase(p.title);
     }
 }
