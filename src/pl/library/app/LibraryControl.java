@@ -50,12 +50,10 @@ class LibraryControl {
     }
 
     private void printUsers() {
-        consolePrinter.printUsers(library.getSortedUsers(new Comparator<LibraryUser>() {
-            @Override
-            public int compare(LibraryUser o1, LibraryUser o2) {
-                return o1.getLastName().compareToIgnoreCase(o2.getLastName());
-            }
-        }));
+        consolePrinter.printUsers(library.getSortedUsers(
+                //(o1, o2) -> o1.getLastName().compareToIgnoreCase(o2.getLastName())
+                Comparator.comparing(User::getLastName, String.CASE_INSENSITIVE_ORDER)
+        ));
     }
 
     private void addUser() {
@@ -114,7 +112,10 @@ class LibraryControl {
     }
 
     private void printBooks() {
-        consolePrinter.printBooks(library.getSortedPublications(new AlphabeticalTitleComparator()));
+        consolePrinter.printBooks(library.getSortedPublications(
+                //(p1, p2) -> p1.getTitle().compareToIgnoreCase(p2.getTitle())
+                Comparator.comparing(Publication::getTitle, String.CASE_INSENSITIVE_ORDER)
+                ));
     }
 
     private void addMagazine() {
@@ -140,7 +141,10 @@ class LibraryControl {
     }
 
     private void printMagazines() {
-        consolePrinter.printMagazines(library.getSortedPublications(new AlphabeticalTitleComparator()));
+        consolePrinter.printMagazines(library.getSortedPublications(
+                //(p1, p2) -> p1.getTitle().compareToIgnoreCase(p2.getTitle())
+                Comparator.comparing(Publication::getTitle, String.CASE_INSENSITIVE_ORDER)
+        ));
     }
 
     private void exit() {

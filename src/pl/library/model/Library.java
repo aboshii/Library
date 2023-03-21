@@ -54,7 +54,8 @@ public class Library implements Serializable {
         if (publications.containsValue(publication)) {
             publications.remove(publication.getTitle());
             return true;
-        } else
-        return false;
+        } else {
+            return false;
+        }
     }
 }
