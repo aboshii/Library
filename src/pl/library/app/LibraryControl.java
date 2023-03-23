@@ -2,13 +2,14 @@ package pl.library.app;
 
 import java.util.Comparator;
 import java.util.InputMismatchException;
+import java.util.Optional;
+
 import pl.library.exception.*;
 import pl.library.io.ConsolePrinter;
 import pl.library.io.DataReader;
 import pl.library.io.file.FileManager;
 import pl.library.io.file.FileManagerBuilder;
 import pl.library.model.*;
-import pl.library.model.comparator.AlphabeticalTitleComparator;
 
 class LibraryControl {
     private ConsolePrinter consolePrinter = new ConsolePrinter();
@@ -43,10 +44,20 @@ class LibraryControl {
                 case REMOVE_MAGAZINE -> removeMagazine();
                 case ADD_USER -> addUser();
                 case PRINT_USERS -> printUsers();
+                case FIND_BOOK -> findBook();
                 case EXIT -> exit();
                 default -> consolePrinter.printLine("Nie ma takiej opcji, wprowadź ponownie: ");
             }
         } while (option != Option.EXIT);
+    }
+
+    private void findBook() {
+        consolePrinter.printLine("Podaj tytuł publikacji");
+        String title = dataReader.getString();
+        String notFoundMessage = "Brak publikacji o tym tytule";
+        library.findPublicationByTitle(title)
+                .map(Publication::toString)
+                .ifPresentOrElse(consolePrinter::printLine, () -> System.out.println(notFoundMessage));
     }
 
     private void printUsers() {
@@ -167,7 +178,8 @@ class LibraryControl {
         REMOVE_BOOK(5, "Usuń książkę"),
         REMOVE_MAGAZINE(6, "Usuń magazyn"),
         ADD_USER(7, "Dodaj użytkownika"),
-        PRINT_USERS(8, "Wyświetl użytkowników");
+        PRINT_USERS(8, "Wyświetl użytkowników"),
+        FIND_BOOK(9, "Wyświetl publikacje na podstawie tytułu");
 
         private int value;
         private String description;

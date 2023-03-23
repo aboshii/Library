@@ -20,28 +20,44 @@ public class CsvFileManager implements FileManager{
     }
 
     private void importUsers(Library library) {
-        try (Scanner fileReader = new Scanner(new File(USERS_FILE_NAME)))
+        try (
+                //Scanner fileReader = new Scanner(new File(USERS_FILE_NAME))
+                var bufferedReader = new BufferedReader(new FileReader(USERS_FILE_NAME));
+        )
         {
-            while(fileReader.hasNextLine()) {
+/*            while(fileReader.hasNextLine()) {
                 String line = fileReader.nextLine();
                 LibraryUser user = createUserFromString(line);
                 library.addUser(user);
-            }
+            }*/
+            bufferedReader.lines()
+                    .map(this::createUserFromString)
+                    .forEach(library::addUser);
         } catch (FileNotFoundException e) {
             throw new DataImportException("Brak pliku");
+        } catch (IOException e) {
+            throw new DataImportException("Błąd odczytu pliku");
         }
     }
 
     private void importPublications(Library library) {
-        try (Scanner fileReader = new Scanner(new File(FILE_NAME)))
+        try (
+                //Scanner fileReader = new Scanner(new File(FILE_NAME))
+            var bufferedReader = new BufferedReader(new FileReader(FILE_NAME));
+        )
         {
-            while(fileReader.hasNextLine()) {
+/*            while(fileReader.hasNextLine()) {
                 String line = fileReader.nextLine();
                 Publication publication = createObjectFromString(line);
                 library.addPublication(publication);
-            }
+            }*/
+            bufferedReader.lines()
+                    .map(this::createObjectFromString)
+                    .forEach(library::addPublication);
         } catch (FileNotFoundException e) {
             throw new DataImportException("Brak pliku");
+        } catch (IOException e) {
+            throw new DataImportException("Błąd odczytu pliku");
         }
     }
 
